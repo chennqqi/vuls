@@ -22,10 +22,10 @@ import (
 	"fmt"
 	"os"
 
-	"golang.org/x/net/context"
+	"context"
 
-	"github.com/future-architect/vuls/commands"
-	"github.com/future-architect/vuls/version"
+	"github.com/chennqqi/vuls/commands"
+	"github.com/chennqqi/vuls/version"
 	"github.com/google/subcommands"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -36,7 +36,7 @@ func main() {
 	subcommands.Register(subcommands.FlagsCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
 	subcommands.Register(&commands.DiscoverCmd{}, "discover")
-	subcommands.Register(&commands.TuiCmd{}, "tui")
+	//	subcommands.Register(&commands.TuiCmd{}, "tui")
 	subcommands.Register(&commands.ScanCmd{}, "scan")
 	subcommands.Register(&commands.PrepareCmd{}, "prepare")
 	subcommands.Register(&commands.HistoryCmd{}, "history")

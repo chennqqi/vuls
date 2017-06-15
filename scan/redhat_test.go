@@ -22,8 +22,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/future-architect/vuls/config"
-	"github.com/future-architect/vuls/models"
+	"github.com/chennqqi/vuls/config"
+	"github.com/chennqqi/vuls/models"
 	"github.com/k0kubun/pp"
 )
 

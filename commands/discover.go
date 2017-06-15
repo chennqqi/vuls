@@ -24,8 +24,9 @@ import (
 	"strings"
 	"text/template"
 
+	"context"
+
 	"github.com/google/subcommands"
-	"golang.org/x/net/context"
 
 	"github.com/Sirupsen/logrus"
 	ps "github.com/kotakanbe/go-pingscanner"

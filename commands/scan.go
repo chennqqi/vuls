@@ -26,14 +26,15 @@ import (
 	"strings"
 	"time"
 
+	"context"
+
 	"github.com/Sirupsen/logrus"
-	c "github.com/future-architect/vuls/config"
-	"github.com/future-architect/vuls/cveapi"
-	"github.com/future-architect/vuls/report"
-	"github.com/future-architect/vuls/scan"
-	"github.com/future-architect/vuls/util"
+	c "github.com/chennqqi/vuls/config"
+	"github.com/chennqqi/vuls/cveapi"
+	"github.com/chennqqi/vuls/report"
+	"github.com/chennqqi/vuls/scan"
+	"github.com/chennqqi/vuls/util"
 	"github.com/google/subcommands"
-	"golang.org/x/net/context"
 )
 
 // ScanCmd is Subcommand of host discovery mode
@@ -339,12 +340,12 @@ func (p *ScanCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 			Log.Error("Azure storage container name is requied with --azure-container option")
 			return subcommands.ExitUsageError
 		}
-		if err := report.CheckIfAzureContainerExists(); err != nil {
-			Log.Errorf("Failed to access to the Azure Blob container. err: %s", err)
-			Log.Error("Ensure the container or check Azure config before scanning")
-			return subcommands.ExitUsageError
-		}
-		reports = append(reports, report.AzureBlobWriter{})
+		//		if err := report.CheckIfAzureContainerExists(); err != nil {
+		//			Log.Errorf("Failed to access to the Azure Blob container. err: %s", err)
+		//			Log.Error("Ensure the container or check Azure config before scanning")
+		//			return subcommands.ExitUsageError
+		//		}
+		//		reports = append(reports, report.AzureBlobWriter{})
 	}
 
 	c.Conf.JSONBaseDir = p.jsonBaseDir

@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/future-architect/vuls/models"
+	"github.com/chennqqi/vuls/models"
 )
 
 // TextFileWriter writes results to file.

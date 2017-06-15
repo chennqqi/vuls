@@ -25,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/future-architect/vuls/config"
-	"github.com/future-architect/vuls/models"
+	"github.com/chennqqi/vuls/config"
+	"github.com/chennqqi/vuls/models"
 	"github.com/gosuri/uitable"
 )
 
@@ -233,7 +233,7 @@ func toPlainTextDetailsLangJa(cveInfo models.CveInfo, osFamily string) string {
 	dtable.AddRow("NVD", fmt.Sprintf("%s?vulnId=%s", nvdBaseURL, cveID))
 	dtable.AddRow("MITRE", fmt.Sprintf("%s%s", mitreBaseURL, cveID))
 	dtable.AddRow("CVE Details", fmt.Sprintf("%s/%s", cveDetailsBaseURL, cveID))
-	dtable.AddRow("CVSS Claculator", cveDetail.CvssV2CalculatorLink("ja"))
+	//	dtable.AddRow("CVSS Claculator", cveDetail.CvssV2CalculatorLink("ja"))
 
 	dlinks := distroLinks(cveInfo, osFamily)
 	for _, link := range dlinks {
@@ -274,7 +274,7 @@ func toPlainTextDetailsLangEn(d models.CveInfo, osFamily string) string {
 	dtable.AddRow("NVD", fmt.Sprintf("%s?vulnId=%s", nvdBaseURL, cveID))
 	dtable.AddRow("MITRE", fmt.Sprintf("%s%s", mitreBaseURL, cveID))
 	dtable.AddRow("CVE Details", fmt.Sprintf("%s/%s", cveDetailsBaseURL, cveID))
-	dtable.AddRow("CVSS Claculator", cveDetail.CvssV2CalculatorLink("en"))
+	//	dtable.AddRow("CVSS Claculator", cveDetail.CvssV2CalculatorLink("en"))
 
 	links := distroLinks(d, osFamily)
 	for _, link := range links {

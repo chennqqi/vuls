@@ -36,8 +36,8 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/cenkalti/backoff"
-	conf "github.com/future-architect/vuls/config"
-	"github.com/future-architect/vuls/util"
+	conf "github.com/chennqqi/vuls/config"
+	"github.com/chennqqi/vuls/util"
 )
 
 type sshResult struct {

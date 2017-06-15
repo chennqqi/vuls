@@ -107,7 +107,7 @@ Vuls requiert l'installation des paquets suivants :
 - sqlite
 - git
 - gcc
-- go v1.6
+- go v1.8
     - https://golang.org/doc/install
 
 ```bash
@@ -207,18 +207,5 @@ ALAS-2016-643   https://alas.aws.amazon.com/ALAS-2016-643.html
 Package/CPE     java-1.7.0-openjdk-1.7.0.91-2.6.2.2.63.amzn1 -> java-1.7.0-openjdk-1:1.7.0.95-2.6.4.0.65.amzn1
 
 ```
-
-## Step9. TUI
-
-Les résultats de Vuls peuvent etre affichés dans un Shell via TUI (Terminal-Based User Interface).
-
-```
-$ vuls tui
-```
-
-![Vuls-TUI](img/hello-vuls-tui.png)
-
-
-----
 
 For more information see [README in English](https://github.com/future-architect/vuls/blob/master/README.md)  

@@ -24,13 +24,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"context"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/google/subcommands"
-	"golang.org/x/net/context"
 
-	c "github.com/future-architect/vuls/config"
-	"github.com/future-architect/vuls/scan"
-	"github.com/future-architect/vuls/util"
+	c "github.com/chennqqi/vuls/config"
+	"github.com/chennqqi/vuls/scan"
+	"github.com/chennqqi/vuls/util"
 )
 
 // ConfigtestCmd is Subcommand

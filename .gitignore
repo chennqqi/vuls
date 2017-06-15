@@ -12,3 +12,5 @@ vendor/
 log/
 results/
 *config.toml
+/report/azureblob.go.remove
+/vuls.exe

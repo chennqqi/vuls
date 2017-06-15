@@ -25,10 +25,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	c "github.com/future-architect/vuls/config"
-	"github.com/future-architect/vuls/report"
+	"context"
+
+	c "github.com/chennqqi/vuls/config"
+	"github.com/chennqqi/vuls/report"
 	"github.com/google/subcommands"
-	"golang.org/x/net/context"
 )
 
 // HistoryCmd is Subcommand of list scanned results

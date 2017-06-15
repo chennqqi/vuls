@@ -1,4 +1,3 @@
-
 # Vuls: VULnerability Scanner
 
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](http://goo.gl/forms/xm5KFo35tu)
@@ -18,7 +17,11 @@ We have a slack team. [Join slack team](http://goo.gl/forms/xm5KFo35tu)
 
 ![Vuls-slack](img/vuls-slack-en.png)
 
-
+## my fork feature
+1. support go get
+2. go 1.8
+3. remove tui
+4. remove azureblob
 
 ----
 
@@ -131,7 +134,7 @@ Vuls requires the following packages.
 - SQLite3
 - git v2
 - gcc
-- go v1.6
+- go v1.8
     - https://golang.org/doc/install
 
 ```bash

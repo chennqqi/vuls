@@ -25,10 +25,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/future-architect/vuls/config"
-	"github.com/future-architect/vuls/cveapi"
-	"github.com/future-architect/vuls/models"
-	"github.com/future-architect/vuls/util"
+	"github.com/chennqqi/vuls/config"
+	"github.com/chennqqi/vuls/cveapi"
+	"github.com/chennqqi/vuls/models"
+	"github.com/chennqqi/vuls/util"
 
 	"github.com/k0kubun/pp"
 )

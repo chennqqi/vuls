@@ -124,7 +124,7 @@ Vulsセットアップに必要な以下のソフトウェアをインストー�
 - SQLite3
 - git v2
 - gcc
-- go v1.6
+- go v1.8
     - https://golang.org/doc/install
 
 ```bash
@@ -263,15 +263,6 @@ Package/CPE     java-1.7.0-openjdk-1.7.0.91-2.6.2.2.63.amzn1 -> java-1.7.0-openj
 
 ```
 
-## Step9. TUI
-
-Vulsにはスキャン結果の詳細を参照できるイカしたTUI(Terminal-Based User Interface)が付属している。
-
-```
-$ vuls tui
-```
-
-![Vuls-TUI](img/hello-vuls-tui.png)
 
 ## Step10. Web UI
 

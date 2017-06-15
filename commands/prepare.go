@@ -22,12 +22,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"context"
+
 	"github.com/Sirupsen/logrus"
-	c "github.com/future-architect/vuls/config"
-	"github.com/future-architect/vuls/scan"
-	"github.com/future-architect/vuls/util"
+	c "github.com/chennqqi/vuls/config"
+	"github.com/chennqqi/vuls/scan"
+	"github.com/chennqqi/vuls/util"
 	"github.com/google/subcommands"
-	"golang.org/x/net/context"
 )
 
 // PrepareCmd is Subcommand of host discovery mode
