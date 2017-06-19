@@ -313,40 +313,6 @@ func (p *ScanCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	if p.reportText {
 		reports = append(reports, report.TextFileWriter{ScannedAt: scannedAt})
 	}
-	if p.reportS3 {
-		c.Conf.AwsRegion = p.awsRegion
-		c.Conf.AwsProfile = p.awsProfile
-		c.Conf.S3Bucket = p.awsS3Bucket
-		if err := report.CheckIfBucketExists(); err != nil {
-			Log.Errorf("Failed to access to the S3 bucket. err: %s", err)
-			Log.Error("Ensure the bucket or check AWS config before scanning")
-			return subcommands.ExitUsageError
-		}
-		reports = append(reports, report.S3Writer{})
-	}
-	if p.reportAzureBlob {
-		c.Conf.AzureAccount = p.azureAccount
-		if len(c.Conf.AzureAccount) == 0 {
-			c.Conf.AzureAccount = os.Getenv("AZURE_STORAGE_ACCOUNT")
-		}
-
-		c.Conf.AzureKey = p.azureKey
-		if len(c.Conf.AzureKey) == 0 {
-			c.Conf.AzureKey = os.Getenv("AZURE_STORAGE_ACCESS_KEY")
-		}
-
-		c.Conf.AzureContainer = p.azureContainer
-		if len(c.Conf.AzureContainer) == 0 {
-			Log.Error("Azure storage container name is requied with --azure-container option")
-			return subcommands.ExitUsageError
-		}
-		//		if err := report.CheckIfAzureContainerExists(); err != nil {
-		//			Log.Errorf("Failed to access to the Azure Blob container. err: %s", err)
-		//			Log.Error("Ensure the container or check Azure config before scanning")
-		//			return subcommands.ExitUsageError
-		//		}
-		//		reports = append(reports, report.AzureBlobWriter{})
-	}
 
 	c.Conf.JSONBaseDir = p.jsonBaseDir
 	c.Conf.CveDBPath = p.cvedbpath
