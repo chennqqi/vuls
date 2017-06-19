@@ -150,7 +150,9 @@ func parallelSSHExec(fn func(osTypeInterface) error, timeoutSec ...int) (errs []
 }
 
 func sshExec(c conf.ServerInfo, cmd string, sudo bool, log ...*logrus.Entry) (result sshResult) {
-	if isSSHExecNative() {
+	if c.ServerName == "localhost" {
+		shellExecNative(c, cmd, sudo)
+	} else if isSSHExecNative() {
 		result = sshExecNative(c, cmd, sudo)
 	} else {
 		result = sshExecExternal(c, cmd, sudo)
@@ -214,6 +216,31 @@ func sshExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) 
 		} else {
 			result.ExitStatus = 999
 		}
+	} else {
+		result.ExitStatus = 0
+	}
+
+	result.Stdout = stdoutBuf.String()
+	result.Stderr = stderrBuf.String()
+	result.Cmd = strings.Replace(cmd, "\n", "", -1)
+	return
+}
+
+func shellExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) {
+	result.Servername = c.ServerName
+	result.Host = c.Host
+	result.Port = c.Port
+
+	cmdv := decolateCmd(c, cmd, sudo)
+	//check local user
+	session := exec.Command(cmdv)
+
+	var stdoutBuf, stderrBuf bytes.Buffer
+	session.Stdout = &stdoutBuf
+	session.Stderr = &stderrBuf
+
+	if err := session.Run(); err != nil {
+		result.ExitStatus = 999
 	} else {
 		result.ExitStatus = 0
 	}
