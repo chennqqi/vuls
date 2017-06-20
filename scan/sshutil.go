@@ -36,6 +36,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/cenkalti/backoff"
+	"github.com/chennqqi/go-basher"
 	conf "github.com/chennqqi/vuls/config"
 	"github.com/chennqqi/vuls/util"
 )
@@ -240,6 +241,7 @@ func shellExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult
 	session.Stderr = &stderrBuf
 
 	if err := session.Run(); err != nil {
+		logrus.Info("shellExecNative run error: ", err)
 		result.ExitStatus = 999
 	} else {
 		result.ExitStatus = 0
@@ -247,6 +249,43 @@ func shellExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult
 
 	result.Stdout = stdoutBuf.String()
 	result.Stderr = stderrBuf.String()
+	logrus.Info("shellExecNative Result stdout: ", result.Stdout)
+	logrus.Info("shellExecNative Result stderr: ", result.Stderr)
+	logrus.Info("shellExecNative Result status: ", result.ExitStatus)
+
+	result.Stdout = stdoutBuf.String()
+	result.Stderr = stderrBuf.String()
+	result.Cmd = strings.Replace(cmd, "\n", "", -1)
+	return
+}
+
+func shellExecNative2(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) {
+	result.Servername = c.ServerName
+	result.Host = c.Host
+	result.Port = c.Port
+
+	cmdv := decolateCmd(c, cmd, sudo)
+
+	bashsession, _ := basher.NewContext("/bin/bash", false)
+
+	var stdoutBuf, stderrBuf bytes.Buffer
+	bashsession.Stdout = &stdoutBuf
+	bashsession.Stderr = &stderrBuf
+
+	if status, err := bashsession.Run(cmdv); err != nil {
+		logrus.Info("shellExecNative run error: ", err)
+		logrus.Info("shellExecNative run status: ", status)
+		result.ExitStatus = 999
+	} else {
+		logrus.Info("shellExecNative run status: ", status)
+		result.ExitStatus = 0
+	}
+
+	result.Stdout = stdoutBuf.String()
+	result.Stderr = stderrBuf.String()
+	logrus.Info("shellExecNative Result stdout: ", result.Stdout)
+	logrus.Info("shellExecNative Result stderr: ", result.Stderr)
+	logrus.Info("shellExecNative Result status: ", result.ExitStatus)
 	result.Cmd = strings.Replace(cmd, "\n", "", -1)
 	return
 }

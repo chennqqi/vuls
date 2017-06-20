@@ -24,7 +24,7 @@ import (
 	"runtime"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/rifflock/lfshook"
+	"github.com/chennqqi/lfshook"
 
 	"github.com/chennqqi/vuls/config"
 	formatter "github.com/kotakanbe/logrus-prefixed-formatter"
