@@ -25,8 +25,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
-	"os/exec"
-	"runtime"
+	ex "os/exec"
 	"strings"
 	"syscall"
 	"time"
@@ -36,12 +35,11 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/cenkalti/backoff"
-	"github.com/chennqqi/go-basher"
 	conf "github.com/chennqqi/vuls/config"
 	"github.com/chennqqi/vuls/util"
 )
 
-type sshResult struct {
+type execResult struct {
 	Servername string
 	Host       string
 	Port       string
@@ -52,16 +50,13 @@ type sshResult struct {
 	Error      error
 }
 
-func (s sshResult) String() string {
+func (s execResult) String() string {
 	return fmt.Sprintf(
-		"SSHResult: servername: %s, cmd: %s, exitstatus: %d, stdout: %s, stderr: %s, err: %s",
+		"execResult: servername: %s\n  cmd: %s\n  exitstatus: %d\n  stdout: %s\n  stderr: %s\n  err: %s",
 		s.Servername, s.Cmd, s.ExitStatus, s.Stdout, s.Stderr, s.Error)
 }
 
-func (s sshResult) isSuccess(expectedStatusCodes ...int) bool {
-	if s.Error != nil {
-		return false
-	}
+func (s execResult) isSuccess(expectedStatusCodes ...int) bool {
 	if len(expectedStatusCodes) == 0 {
 		return s.ExitStatus == 0
 	}
@@ -70,38 +65,36 @@ func (s sshResult) isSuccess(expectedStatusCodes ...int) bool {
 			return true
 		}
 	}
+	if s.Error != nil {
+		return false
+	}
 	return false
 }
 
-// Sudo is Const value for sudo mode
+// sudo is Const value for sudo mode
 const sudo = true
 
-// NoSudo is Const value for normal user mode
+// noSudo is Const value for normal user mode
 const noSudo = false
 
-func parallelSSHExec(fn func(osTypeInterface) error, timeoutSec ...int) (errs []error) {
-	resChan := make(chan string, len(servers))
-	errChan := make(chan error, len(servers))
-	defer close(errChan)
+//  Issue commands to the target servers in parallel via SSH or local execution.  If execution fails, the server will be excluded from the target server list(servers) and added to the error server list(errServers).
+func parallelExec(fn func(osTypeInterface) error, timeoutSec ...int) {
+	resChan := make(chan osTypeInterface, len(servers))
 	defer close(resChan)
 
 	for _, s := range servers {
 		go func(s osTypeInterface) {
 			defer func() {
 				if p := recover(); p != nil {
-					logrus.Debugf("Panic: %s on %s",
-						p, s.getServerInfo().ServerName)
+					util.Log.Debugf("Panic: %s on %s",
+						p, s.getServerInfo().GetServerName())
 				}
 			}()
 			if err := fn(s); err != nil {
-				errChan <- fmt.Errorf("%s@%s:%s: %s",
-					s.getServerInfo().User,
-					s.getServerInfo().Host,
-					s.getServerInfo().Port,
-					err,
-				)
+				s.setErrs([]error{err})
+				resChan <- s
 			} else {
-				resChan <- s.getServerInfo().ServerName
+				resChan <- s
 			}
 		}(s)
 	}
@@ -113,47 +106,52 @@ func parallelSSHExec(fn func(osTypeInterface) error, timeoutSec ...int) (errs []
 		timeout = timeoutSec[0]
 	}
 
-	var snames []string
+	var successes []osTypeInterface
 	isTimedout := false
 	for i := 0; i < len(servers); i++ {
 		select {
 		case s := <-resChan:
-			snames = append(snames, s)
-		case err := <-errChan:
-			errs = append(errs, err)
+			if len(s.getErrs()) == 0 {
+				successes = append(successes, s)
+			} else {
+				util.Log.Errorf("Error: %s, err: %s",
+					s.getServerInfo().GetServerName(), s.getErrs())
+				errServers = append(errServers, s)
+			}
 		case <-time.After(time.Duration(timeout) * time.Second):
 			isTimedout = true
 		}
 	}
 
-	// collect timed out servernames
-	var timedoutSnames []string
 	if isTimedout {
+		// set timed out error and append to errServers
 		for _, s := range servers {
-			name := s.getServerInfo().ServerName
+			name := s.getServerInfo().GetServerName()
 			found := false
-			for _, t := range snames {
-				if name == t {
+			for _, ss := range successes {
+				if name == ss.getServerInfo().GetServerName() {
 					found = true
 					break
 				}
 			}
 			if !found {
-				timedoutSnames = append(timedoutSnames, name)
+				msg := fmt.Sprintf("Timed out: %s",
+					s.getServerInfo().GetServerName())
+				util.Log.Errorf(msg)
+				s.setErrs([]error{fmt.Errorf(msg)})
+				errServers = append(errServers, s)
 			}
 		}
 	}
-	if isTimedout {
-		errs = append(errs, fmt.Errorf(
-			"Timed out: %s", timedoutSnames))
-	}
+	servers = successes
 	return
 }
 
-func sshExec(c conf.ServerInfo, cmd string, sudo bool, log ...*logrus.Entry) (result sshResult) {
-	if c.ServerName == "localhost" {
-		shellExecNative(c, cmd, sudo)
-	} else if isSSHExecNative() {
+func exec(c conf.ServerInfo, cmd string, sudo bool, log ...*logrus.Entry) (result execResult) {
+	if c.Port == "local" &&
+		(c.Host == "127.0.0.1" || c.Host == "localhost") {
+		result = localExec(c, cmd, sudo)
+	} else if conf.Conf.SSHNative {
 		result = sshExecNative(c, cmd, sudo)
 	} else {
 		result = sshExecExternal(c, cmd, sudo)
@@ -164,11 +162,37 @@ func sshExec(c conf.ServerInfo, cmd string, sudo bool, log ...*logrus.Entry) (re
 	return
 }
 
-func isSSHExecNative() bool {
-	return runtime.GOOS == "windows" || !conf.Conf.SSHExternal
+func localExec(c conf.ServerInfo, cmdstr string, sudo bool) (result execResult) {
+	cmdstr = decorateCmd(c, cmdstr, sudo)
+	var cmd *ex.Cmd
+	if c.Distro.Family == "FreeBSD" {
+		cmd = ex.Command("/bin/sh", "-c", cmdstr)
+	} else {
+		cmd = ex.Command("/bin/bash", "-c", cmdstr)
+	}
+	var stdoutBuf, stderrBuf bytes.Buffer
+	cmd.Stdout = &stdoutBuf
+	cmd.Stderr = &stderrBuf
+
+	if err := cmd.Run(); err != nil {
+		result.Error = err
+		if exitError, ok := err.(*ex.ExitError); ok {
+			waitStatus := exitError.Sys().(syscall.WaitStatus)
+			result.ExitStatus = waitStatus.ExitStatus()
+		} else {
+			result.ExitStatus = 999
+		}
+	} else {
+		result.ExitStatus = 0
+	}
+
+	result.Stdout = stdoutBuf.String()
+	result.Stderr = stderrBuf.String()
+	result.Cmd = strings.Replace(cmdstr, "\n", "", -1)
+	return
 }
 
-func sshExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) {
+func sshExecNative(c conf.ServerInfo, cmd string, sudo bool) (result execResult) {
 	result.Servername = c.ServerName
 	result.Host = c.Host
 	result.Port = c.Port
@@ -198,7 +222,7 @@ func sshExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) 
 		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
 		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
 	}
-	if err = session.RequestPty("xterm", 400, 256, modes); err != nil {
+	if err = session.RequestPty("xterm", 400, 1000, modes); err != nil {
 		result.Error = fmt.Errorf(
 			"Failed to request for pseudo terminal. servername: %s, err: %s",
 			c.ServerName, err)
@@ -210,7 +234,7 @@ func sshExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) 
 	session.Stdout = &stdoutBuf
 	session.Stderr = &stderrBuf
 
-	cmd = decolateCmd(c, cmd, sudo)
+	cmd = decorateCmd(c, cmd, sudo)
 	if err := session.Run(cmd); err != nil {
 		if exitErr, ok := err.(*ssh.ExitError); ok {
 			result.ExitStatus = exitErr.ExitStatus()
@@ -227,79 +251,15 @@ func sshExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) 
 	return
 }
 
-func shellExecNative(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) {
-	result.Servername = c.ServerName
-	result.Host = c.Host
-	result.Port = c.Port
-
-	cmdv := decolateCmd(c, cmd, sudo)
-	//check local user
-	session := exec.Command(cmdv)
-
-	var stdoutBuf, stderrBuf bytes.Buffer
-	session.Stdout = &stdoutBuf
-	session.Stderr = &stderrBuf
-
-	if err := session.Run(); err != nil {
-		logrus.Info("shellExecNative run error: ", err)
-		result.ExitStatus = 999
-	} else {
-		result.ExitStatus = 0
-	}
-
-	result.Stdout = stdoutBuf.String()
-	result.Stderr = stderrBuf.String()
-	logrus.Info("shellExecNative Result stdout: ", result.Stdout)
-	logrus.Info("shellExecNative Result stderr: ", result.Stderr)
-	logrus.Info("shellExecNative Result status: ", result.ExitStatus)
-
-	result.Stdout = stdoutBuf.String()
-	result.Stderr = stderrBuf.String()
-	result.Cmd = strings.Replace(cmd, "\n", "", -1)
-	return
-}
-
-func shellExecNative2(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) {
-	result.Servername = c.ServerName
-	result.Host = c.Host
-	result.Port = c.Port
-
-	cmdv := decolateCmd(c, cmd, sudo)
-
-	bashsession, _ := basher.NewContext("/bin/bash", false)
-
-	var stdoutBuf, stderrBuf bytes.Buffer
-	bashsession.Stdout = &stdoutBuf
-	bashsession.Stderr = &stderrBuf
-
-	if status, err := bashsession.Run(cmdv); err != nil {
-		logrus.Info("shellExecNative run error: ", err)
-		logrus.Info("shellExecNative run status: ", status)
-		result.ExitStatus = 999
-	} else {
-		logrus.Info("shellExecNative run status: ", status)
-		result.ExitStatus = 0
-	}
-
-	result.Stdout = stdoutBuf.String()
-	result.Stderr = stderrBuf.String()
-	logrus.Info("shellExecNative Result stdout: ", result.Stdout)
-	logrus.Info("shellExecNative Result stderr: ", result.Stderr)
-	logrus.Info("shellExecNative Result status: ", result.ExitStatus)
-	result.Cmd = strings.Replace(cmd, "\n", "", -1)
-	return
-}
-
-func sshExecExternal(c conf.ServerInfo, cmd string, sudo bool) (result sshResult) {
-	sshBinaryPath, err := exec.LookPath("ssh")
+func sshExecExternal(c conf.ServerInfo, cmd string, sudo bool) (result execResult) {
+	sshBinaryPath, err := ex.LookPath("ssh")
 	if err != nil {
 		return sshExecNative(c, cmd, sudo)
 	}
 
 	defaultSSHArgs := []string{
-		"-t",
-		"-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
+		"-tt",
+		"-o", "StrictHostKeyChecking=yes",
 		"-o", "LogLevel=quiet",
 		"-o", "ConnectionAttempts=3",
 		"-o", "ConnectTimeout=10",
@@ -323,17 +283,17 @@ func sshExecExternal(c conf.ServerInfo, cmd string, sudo bool) (result sshResult
 		args = append(args, "-o", "PasswordAuthentication=no")
 	}
 
-	cmd = decolateCmd(c, cmd, sudo)
-	//  cmd = fmt.Sprintf("stty cols 256; set -o pipefail; %s", cmd)
+	cmd = decorateCmd(c, cmd, sudo)
+	cmd = fmt.Sprintf("stty cols 1000; %s", cmd)
 
 	args = append(args, cmd)
-	execCmd := exec.Command(sshBinaryPath, args...)
+	execCmd := ex.Command(sshBinaryPath, args...)
 
 	var stdoutBuf, stderrBuf bytes.Buffer
 	execCmd.Stdout = &stdoutBuf
 	execCmd.Stderr = &stderrBuf
 	if err := execCmd.Run(); err != nil {
-		if e, ok := err.(*exec.ExitError); ok {
+		if e, ok := err.(*ex.ExitError); ok {
 			if s, ok := e.Sys().(syscall.WaitStatus); ok {
 				result.ExitStatus = s.ExitStatus()
 			} else {
@@ -362,22 +322,27 @@ func getSSHLogger(log ...*logrus.Entry) *logrus.Entry {
 	return log[0]
 }
 
-func decolateCmd(c conf.ServerInfo, cmd string, sudo bool) string {
+func decorateCmd(c conf.ServerInfo, cmd string, sudo bool) string {
 	if sudo && c.User != "root" && !c.IsContainer() {
 		cmd = fmt.Sprintf("sudo -S %s", cmd)
 		cmd = strings.Replace(cmd, "|", "| sudo ", -1)
 	}
 
-	if c.Distro.Family != "FreeBSD" {
-		// set pipefail option. Bash only
-		// http://unix.stackexchange.com/questions/14270/get-exit-status-of-process-thats-piped-to-another
-		cmd = fmt.Sprintf("set -o pipefail; %s", cmd)
-	}
+	// If you are using pipe and you want to detect preprocessing errors, remove comment out
+	//  switch c.Distro.Family {
+	//  case "FreeBSD", "ubuntu", "debian", "raspbian":
+	//  default:
+	//      // set pipefail option. Bash only
+	//      // http://unix.stackexchange.com/questions/14270/get-exit-status-of-process-thats-piped-to-another
+	//      cmd = fmt.Sprintf("set -o pipefail; %s", cmd)
+	//  }
 
 	if c.IsContainer() {
-		switch c.Container.Type {
+		switch c.Containers.Type {
 		case "", "docker":
-			cmd = fmt.Sprintf(`docker exec %s /bin/bash -c "%s"`, c.Container.ContainerID, cmd)
+			cmd = fmt.Sprintf(`docker exec --user 0 %s /bin/bash -c "%s"`, c.Container.ContainerID, cmd)
+		case "lxd":
+			cmd = fmt.Sprintf(`lxc exec %s -- /bin/bash -c "%s"`, c.Container.Name, cmd)
 		}
 	}
 	//  cmd = fmt.Sprintf("set -x; %s", cmd)
@@ -398,8 +363,9 @@ func getAgentAuth() (auth ssh.AuthMethod, ok bool) {
 func tryAgentConnect(c conf.ServerInfo) *ssh.Client {
 	if auth, ok := getAgentAuth(); ok {
 		config := &ssh.ClientConfig{
-			User: c.User,
-			Auth: []ssh.AuthMethod{auth},
+			User:            c.User,
+			Auth:            []ssh.AuthMethod{auth},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
 		client, _ := ssh.Dial("tcp", c.Host+":"+c.Port, config)
 		return client
@@ -419,8 +385,9 @@ func sshConnect(c conf.ServerInfo) (client *ssh.Client, err error) {
 
 	// http://blog.ralch.com/tutorial/golang-ssh-connection/
 	config := &ssh.ClientConfig{
-		User: c.User,
-		Auth: auths,
+		User:            c.User,
+		Auth:            auths,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
 	notifyFunc := func(e error, t time.Duration) {

@@ -18,17 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package commands
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
 	"text/template"
 
-	"context"
-
-	"github.com/google/subcommands"
-
 	"github.com/Sirupsen/logrus"
+	"github.com/google/subcommands"
 	ps "github.com/kotakanbe/go-pingscanner"
 )
 
@@ -99,9 +97,9 @@ iconEmoji    = ":ghost:"
 authUser     = "username"
 notifyUsers  = ["@username"]
 
-[mail]
+[email]
 smtpAddr      = "smtp.gmail.com"
-smtpPort      = "465"
+smtpPort      = "587"
 user          = "username"
 password      = "password"
 from          = "from@address.com"
@@ -116,10 +114,13 @@ subjectPrefix = "[vuls]"
 #cpeNames = [
 #  "cpe:/a:rubyonrails:ruby_on_rails:4.2.1",
 #]
-#containers = ["${running}"]
+#dependencyCheckXMLPath = "/tmp/dependency-check-report.xml"
+#ignoreCves = ["CVE-2014-6271"]
 #optional = [
 #    ["key", "value"],
 #]
+#containers = ["${running}"]
+
 
 [servers]
 {{- $names:=  .Names}}
@@ -132,10 +133,17 @@ host         = "{{$ip}}"
 #cpeNames = [
 #  "cpe:/a:rubyonrails:ruby_on_rails:4.2.1",
 #]
-#containers = ["${running}"]
+#dependencyCheckXMLPath = "/tmp/dependency-check-report.xml"
+#ignoreCves = ["CVE-2014-0160"]
 #optional = [
 #    ["key", "value"],
 #]
+#[servers.{{index $names $i}}.containers]
+#type = "docker" #or "lxd" defualt: docker
+#includes = ["${running}"]
+#excludes = ["container_name_a", "4aa37a8b63b9"]
+
+
 {{end}}
 
 `

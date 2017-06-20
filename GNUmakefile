@@ -1,4 +1,8 @@
 .PHONY: \
+	dep \
+	depup \
+	build \
+	install \
 	all \
 	vendor \
 	lint \
@@ -12,12 +16,27 @@
 
 SRCS = $(shell git ls-files '*.go')
 PKGS = ./. ./config ./models ./report ./cveapi ./scan ./util ./commands ./cache
+VERSION := $(shell git describe --tags --abbrev=0)
+REVISION := $(shell git rev-parse --short HEAD)
+LDFLAGS := -X 'main.version=$(VERSION)' \
+	-X 'main.revision=$(REVISION)'
 
-all: test
+all: dep build test
 
-#  vendor:
-#          @ go get -v github.com/mjibson/party
-#          party -d external -c -u
+dep:
+	go get -u github.com/golang/dep/...
+	dep ensure
+
+depup:
+	go get -u github.com/golang/dep/...
+	dep ensure -update
+
+build: main.go dep
+	go build -ldflags "$(LDFLAGS)" -o vuls $<
+
+install: main.go dep
+	go install -ldflags "$(LDFLAGS)"
+
 
 lint:
 	@ go get -v github.com/golang/lint/golint
@@ -36,7 +55,7 @@ fmtcheck:
 pretest: lint vet fmtcheck
 
 test: pretest
-	$(foreach pkg,$(PKGS),go test -v $(pkg) || exit;)
+	$(foreach pkg,$(PKGS),go test -cover -v $(pkg) || exit;)
 
 unused :
 	$(foreach pkg,$(PKGS),unused $(pkg);)

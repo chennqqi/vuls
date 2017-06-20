@@ -27,7 +27,6 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/parnurzeal/gorequest"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/chennqqi/vuls/config"
 	"github.com/chennqqi/vuls/util"
 	cveconfig "github.com/kotakanbe/go-cve-dictionary/config"
@@ -44,12 +43,12 @@ type cvedictClient struct {
 }
 
 func (api *cvedictClient) initialize() {
-	api.baseURL = config.Conf.CveDictionaryURL
+	api.baseURL = config.Conf.CveDBURL
 }
 
 func (api cvedictClient) CheckHealth() (ok bool, err error) {
-	if config.Conf.CveDBPath != "" {
-		log.Debugf("get cve-dictionary from sqlite3")
+	if config.Conf.CveDBURL == "" || config.Conf.CveDBType == "mysql" {
+		util.Log.Debugf("get cve-dictionary from %s", config.Conf.CveDBType)
 		return true, nil
 	}
 
@@ -71,11 +70,12 @@ type response struct {
 }
 
 func (api cvedictClient) FetchCveDetails(cveIDs []string) (cveDetails cve.CveDetails, err error) {
-	if config.Conf.CveDBPath != "" {
+	switch config.Conf.CveDBType {
+	case "sqlite3", "mysql":
 		return api.FetchCveDetailsFromCveDB(cveIDs)
 	}
 
-	api.baseURL = config.Conf.CveDictionaryURL
+	api.baseURL = config.Conf.CveDBURL
 	reqChan := make(chan string, len(cveIDs))
 	resChan := make(chan response, len(cveIDs))
 	errChan := make(chan error, len(cveIDs))
@@ -99,7 +99,7 @@ func (api cvedictClient) FetchCveDetails(cveIDs []string) (cveDetails cve.CveDet
 				if err != nil {
 					errChan <- err
 				} else {
-					log.Debugf("HTTP Request to %s", url)
+					util.Log.Debugf("HTTP Request to %s", url)
 					api.httpGet(cveID, url, resChan, errChan)
 				}
 			}
@@ -129,14 +129,19 @@ func (api cvedictClient) FetchCveDetails(cveIDs []string) (cveDetails cve.CveDet
 			fmt.Errorf("Failed to fetch CVE. err: %v", errs)
 	}
 
-	// order by CVE ID desc
 	sort.Sort(cveDetails)
 	return
 }
 
 func (api cvedictClient) FetchCveDetailsFromCveDB(cveIDs []string) (cveDetails cve.CveDetails, err error) {
-	log.Debugf("open cve-dictionary db")
-	cveconfig.Conf.DBPath = config.Conf.CveDBPath
+	util.Log.Debugf("open cve-dictionary db (%s)", config.Conf.CveDBType)
+	cveconfig.Conf.DBType = config.Conf.CveDBType
+	if config.Conf.CveDBType == "sqlite3" {
+		cveconfig.Conf.DBPath = config.Conf.CveDBPath
+	} else {
+		cveconfig.Conf.DBPath = config.Conf.CveDBURL
+	}
+	cveconfig.Conf.DebugSQL = config.Conf.DebugSQL
 	if err := cvedb.OpenDB(); err != nil {
 		return []cve.CveDetail{},
 			fmt.Errorf("Failed to open DB. err: %s", err)
@@ -170,7 +175,7 @@ func (api cvedictClient) httpGet(key, url string, resChan chan<- response, errCh
 		return nil
 	}
 	notify := func(err error, t time.Duration) {
-		log.Warnf("Failed to HTTP GET. retrying in %s seconds. err: %s", t, err)
+		util.Log.Warnf("Failed to HTTP GET. retrying in %s seconds. err: %s", t, err)
 	}
 	err := backoff.RetryNotify(f, backoff.NewExponentialBackOff(), notify)
 	if err != nil {
@@ -192,18 +197,19 @@ type responseGetCveDetailByCpeName struct {
 }
 
 func (api cvedictClient) FetchCveDetailsByCpeName(cpeName string) ([]cve.CveDetail, error) {
-	if config.Conf.CveDBPath != "" {
+	switch config.Conf.CveDBType {
+	case "sqlite3", "mysql":
 		return api.FetchCveDetailsByCpeNameFromDB(cpeName)
 	}
 
-	api.baseURL = config.Conf.CveDictionaryURL
+	api.baseURL = config.Conf.CveDBURL
 	url, err := util.URLPathJoin(api.baseURL, "cpes")
 	if err != nil {
 		return []cve.CveDetail{}, err
 	}
 
 	query := map[string]string{"name": cpeName}
-	log.Debugf("HTTP Request to %s, query: %#v", url, query)
+	util.Log.Debugf("HTTP Request to %s, query: %#v", url, query)
 	return api.httpPost(cpeName, url, query)
 }
 
@@ -223,7 +229,7 @@ func (api cvedictClient) httpPost(key, url string, query map[string]string) ([]c
 		return nil
 	}
 	notify := func(err error, t time.Duration) {
-		log.Warnf("Failed to HTTP POST. retrying in %s seconds. err: %s", t, err)
+		util.Log.Warnf("Failed to HTTP POST. retrying in %s seconds. err: %s", t, err)
 	}
 	err := backoff.RetryNotify(f, backoff.NewExponentialBackOff(), notify)
 	if err != nil {
@@ -239,8 +245,15 @@ func (api cvedictClient) httpPost(key, url string, query map[string]string) ([]c
 }
 
 func (api cvedictClient) FetchCveDetailsByCpeNameFromDB(cpeName string) ([]cve.CveDetail, error) {
-	log.Debugf("open cve-dictionary db")
-	cveconfig.Conf.DBPath = config.Conf.CveDBPath
+	util.Log.Debugf("open cve-dictionary db (%s)", config.Conf.CveDBType)
+	cveconfig.Conf.DBType = config.Conf.CveDBType
+	if config.Conf.CveDBType == "sqlite3" {
+		cveconfig.Conf.DBPath = config.Conf.CveDBPath
+	} else {
+		cveconfig.Conf.DBPath = config.Conf.CveDBURL
+	}
+	cveconfig.Conf.DebugSQL = config.Conf.DebugSQL
+
 	if err := cvedb.OpenDB(); err != nil {
 		return []cve.CveDetail{},
 			fmt.Errorf("Failed to open DB. err: %s", err)
