@@ -421,8 +421,47 @@ func (o *redhat) scanUnsecurePackagesUsingYumCheckUpdate() (models.VulnInfos, er
 func (o *redhat) parseYumCheckUpdateLines(stdout string) (results models.PackageInfoList, err error) {
 	needToParse := false
 	lines := strings.Split(stdout, "\n")
+	var lastLine string
 	for _, line := range lines {
 		// update information of packages begin after blank line.
+		values := preProcessText(line)
+		if len(values) != 3 {
+			v := strings.TrimSpace(line)
+			if lastLine != "" {
+				sep := strings.Index(v, " ")
+				if sep > 0 {
+					if parseYumText(v[:sep]) == YUM_VERSION {
+						line = lastLine + line
+						lastLine = ""
+					} else {
+						o.log.Warnf("parse rpm package failed, skip lastlog(%s), line(%s)",
+							lastLine, line)
+						lastLine = ""
+						continue
+					}
+				}
+			} else {
+				ytype := parseYumText(v)
+				switch ytype {
+				case YUM_NAME:
+					lastLine = line
+					continue
+
+				case YUM_VERSION:
+					o.log.Warnf("parse rpm package failed, skip version line(%s)",
+						lastLine, line)
+					continue
+
+				default:
+					o.log.Warnf("parse rpm package failed, skip unknown, line(%s)",
+						lastLine, line)
+					continue
+				}
+			}
+		} else {
+			lastLine = ""
+		}
+
 		if trimed := strings.TrimSpace(line); len(trimed) == 0 {
 			needToParse = true
 			continue
@@ -433,6 +472,7 @@ func (o *redhat) parseYumCheckUpdateLines(stdout string) (results models.Package
 				// see https://github.com/future-architect/vuls/issues/165
 				continue
 			}
+
 			candidate, err := o.parseYumCheckUpdateLine(line)
 			if err != nil {
 				return results, err

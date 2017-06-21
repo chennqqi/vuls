@@ -1,0 +1,379 @@
+package scan
+
+import (
+	"testing"
+)
+
+func regexpMain(t *testing.T) {
+	raw := `Loaded plugins: fastestmirror, security
+Loading mirror speeds from cached hostfile
+
+PyYAML.x86_64                        3.11-1.el6                          epel   
+SDL.x86_64                           1.2.14-6.el6                        base   
+abrt.x86_64                          2.0.8-34.el6.centos                 base   
+abrt-addon-ccpp.x86_64               2.0.8-34.el6.centos                 base   
+abrt-addon-kerneloops.x86_64         2.0.8-34.el6.centos                 base   
+abrt-addon-python.x86_64             2.0.8-34.el6.centos                 base   
+abrt-cli.x86_64                      2.0.8-34.el6.centos                 base   
+abrt-libs.x86_64                     2.0.8-34.el6.centos                 base   
+abrt-tui.x86_64                      2.0.8-34.el6.centos                 base   
+alsa-utils.x86_64                    1.0.22-9.el6_6                      base   
+at.x86_64                            3.1.10-48.el6                       base   
+authconfig.x86_64                    6.1.12-23.el6                       base   
+autofs.x86_64                        1:5.0.5-113.el6                     base   
+avahi-libs.x86_64                    0.6.25-15.el6                       base   
+b43-openfwwf.noarch                  5.2-10.el6                          base   
+bfa-firmware.noarch                  3.2.23.0-2.el6                      base   
+bind-libs.x86_64                     32:9.8.2-0.37.rc1.el6_7.4           updates
+bind-utils.x86_64                    32:9.8.2-0.37.rc1.el6_7.4           updates
+binutils.x86_64                      2.20.51.0.2-5.43.el6                base   
+biosdevname.x86_64                   0.6.2-1.el6                         base   
+busybox.x86_64                       1:1.15.1-21.el6_6                   base   
+c-ares.x86_64                        1.10.0-3.el6                        base   
+ca-certificates.noarch               2015.2.4-65.0.1.el6_6               base   
+cairo.x86_64                         1.8.8-6.el6_6                       base   
+centos-indexhtml.noarch              6-2.el6.centos                      base   
+centos-release.x86_64                6-7.el6.centos.12.3                 base   
+certmonger.x86_64                    0.77.5-1.el6                        base   
+chkconfig.x86_64                     1.3.49.3-5.el6                      base   
+cifs-utils.x86_64                    4.8.1-20.el6                        base   
+coreutils.x86_64                     8.4-37.el6                          base   
+coreutils-libs.x86_64                8.4-37.el6                          base   
+cpio.x86_64                          2.10-12.el6_5                       base   
+cpuspeed.x86_64                      1:1.5-22.el6                        base   
+crash.x86_64                         7.1.0-3.el6                         base   
+crash-trace-command.x86_64           1.0-5.el6                           base   
+crda.x86_64                          1.1.3_2014.06.13-1.el6              base   
+cronie.x86_64                        1.4.4-15.el6                        base   
+cronie-anacron.x86_64                1.4.4-15.el6                        base   
+cryptsetup-luks.x86_64               1.2.0-11.el6                        base   
+cryptsetup-luks-libs.x86_64          1.2.0-11.el6                        base   
+cups.x86_64                          1:1.4.2-72.el6                      base   
+cups-libs.x86_64                     1:1.4.2-72.el6                      base   
+cyrus-sasl.x86_64                    2.1.23-15.el6_6.2                   base   
+cyrus-sasl-gssapi.x86_64             2.1.23-15.el6_6.2                   base   
+cyrus-sasl-lib.x86_64                2.1.23-15.el6_6.2                   base   
+cyrus-sasl-plain.x86_64              2.1.23-15.el6_6.2                   base   
+dbus.x86_64                          1:1.2.24-8.el6_6                    base   
+dbus-libs.x86_64                     1:1.2.24-8.el6_6                    base   
+dejavu-fonts-common.noarch           2.33-1.el6                          base   
+dejavu-sans-fonts.noarch             2.33-1.el6                          base   
+device-mapper-persistent-data.x86_64 0.3.2-1.el6                         base   
+dhclient.x86_64                      12:4.1.1-49.P1.el6.centos           base   
+dhcp-common.x86_64                   12:4.1.1-49.P1.el6.centos           base   
+dmidecode.x86_64                     1:2.12-6.el6                        base   
+dracut.noarch                        004-388.el6                         base   
+dracut-kernel.noarch                 004-388.el6                         base   
+dstat.noarch                         0.7.0-2.el6                         base   
+efibootmgr.x86_64                    0.5.4-13.el6                        base   
+elfutils.x86_64                      0.161-3.el6                         base   
+elfutils-libelf.x86_64               0.161-3.el6                         base   
+elfutils-libs.x86_64                 0.161-3.el6                         base   
+ethtool.x86_64                       2:3.5-6.el6                         base   
+file.x86_64                          5.04-21.el6                         base   
+file-libs.x86_64                     5.04-21.el6                         base   
+fontconfig.x86_64                    2.8.0-5.el6                         base   
+fprintd.x86_64                       0.1-22.git04fd09cfa.el6             base   
+fprintd-pam.x86_64                   0.1-22.git04fd09cfa.el6             base   
+freetype.x86_64                      2.3.11-15.el6_6.1                   base   
+gdb.x86_64                           7.2-83.el6                          base   
+gettext.x86_64                       0.17-18.el6                         base   
+ghostscript.x86_64                   8.70-21.el6                         base   
+ghostscript-fonts.noarch             5.50-23.2.el6                       base   
+gnupg2.x86_64                        2.0.14-8.el6                        base   
+gnutls.x86_64                        2.8.5-18.el6                        base   
+grafana.x86_64                       4.3.2-1                             grafana
+grep.x86_64                          2.20-3.el6                          base   
+grub.x86_64                          1:0.97-94.el6                       base   
+grubby.x86_64                        7.0.15-7.el6                        base   
+gtk2.x86_64                          2.24.23-6.el6                       base   
+gzip.x86_64                          1.3.12-22.el6                       base   
+hal.x86_64                           0.5.14-14.el6                       base   
+hal-info.noarch                      20090716-5.el6                      base   
+hal-libs.x86_64                      0.5.14-14.el6                       base   
+hwdata.noarch                        0.233-14.1.el6                      base   
+hwloc.x86_64                         1.5-3.el6_5                         base   
+initscripts.x86_64                   9.03.49-1.el6.centos                base   
+ipa-client.x86_64                    3.0.0-47.el6.centos                 base   
+ipa-python.x86_64                    3.0.0-47.el6.centos                 base   
+iproute.x86_64                       2.6.32-45.el6                       base   
+iptables.x86_64                      1.4.7-16.el6                        base   
+iptables-ipv6.x86_64                 1.4.7-16.el6                        base   
+iputils.x86_64                       20071127-20.el6                     base   
+irqbalance.x86_64                    2:1.0.7-5.el6                       base   
+jasper-libs.x86_64                   1.900.1-16.el6_6.3                  base   
+kernel.x86_64                        3.10.0-327.34.el7.wanda             wanda  
+kernel-firmware.noarch               2.6.32-573.3.1.el6                  updates
+kernel-headers.x86_64                3.10.0-327.34.el7.wanda             wanda  
+kexec-tools.x86_64                   2.0.0-286.el6                       base   
+kpartx.x86_64                        0.4.9-87.el6                        base   
+ledmon.x86_64                        0.79-1.el6                          base   
+less.x86_64                          436-13.el6                          base   
+libX11.x86_64                        1.6.0-6.el6                         base   
+libX11-common.noarch                 1.6.0-6.el6                         base   
+libXcursor.x86_64                    1.1.14-2.1.el6                      base   
+libXext.x86_64                       1.3.2-2.1.el6                       base   
+libXfixes.x86_64                     5.0.1-2.1.el6                       base   
+libXfont.x86_64                      1.4.5-5.el6_7                       updates
+libXi.x86_64                         1.7.2-2.2.el6                       base   
+libXinerama.x86_64                   1.1.3-2.1.el6                       base   
+libXrandr.x86_64                     1.4.1-2.1.el6                       base   
+libXrender.x86_64                    0.9.8-2.1.el6                       base   
+libXt.x86_64                         1.1.4-6.1.el6                       base   
+libXtst.x86_64                       1.2.2-2.1.el6                       base   
+libXv.x86_64                         1.0.9-2.1.el6                       base   
+libXxf86vm.x86_64                    1.1.3-2.1.el6                       base   
+libblkid.x86_64                      2.17.2-12.18.el6                    base   
+libcgroup.x86_64                     0.40.rc1-16.el6                     base   
+libcollection.x86_64                 0.6.2-11.el6                        base   
+libdhash.x86_64                      0.4.3-11.el6                        base   
+libdrm.x86_64                        2.4.59-2.el6                        base   
+libgfortran.x86_64                   4.4.7-16.el6                        base   
+libgudev1.x86_64                     147-2.63.el6                        base   
+libhugetlbfs.x86_64                  2.16-2.el6                          base   
+libhugetlbfs-utils.x86_64            2.16-2.el6                          base   
+libini_config.x86_64                 1.1.0-11.el6                        base   
+libipa_hbac.x86_64                   1.12.4-47.el6                       base   
+libipa_hbac-python.x86_64            1.12.4-47.el6                       base   
+libitm.x86_64                        5.2.1-2.2.el6                       wanda  
+libjpeg-turbo.x86_64                 1.2.1-3.el6_5                       base   
+libpath_utils.x86_64                 0.2.1-11.el6                        base   
+libpciaccess.x86_64                  0.13.3-0.1.el6                      base   
+libproxy.x86_64                      0.3.0-10.el6                        base   
+libproxy-bin.x86_64                  0.3.0-10.el6                        base   
+libproxy-python.x86_64               0.3.0-10.el6                        base   
+libref_array.x86_64                  0.1.4-11.el6                        base   
+libreport.x86_64                     2.0.9-24.el6.centos                 base   
+libreport-cli.x86_64                 2.0.9-24.el6.centos                 base   
+libreport-compat.x86_64              2.0.9-24.el6.centos                 base   
+libreport-plugin-kerneloops.x86_64   2.0.9-24.el6.centos                 base   
+libreport-plugin-logger.x86_64       2.0.9-24.el6.centos                 base   
+libreport-plugin-mailx.x86_64        2.0.9-24.el6.centos                 base   
+libreport-plugin-reportuploader.x86_64
+                                     2.0.9-24.el6.centos                 base   
+libreport-plugin-rhtsupport.x86_64   2.0.9-24.el6.centos                 base   
+libreport-python.x86_64              2.0.9-24.el6.centos                 base   
+libssh2.x86_64                       1.4.2-1.el6_6.1                     base   
+libsss_autofs.x86_64                 1.9.2-129.el6_5.4                   updates
+libsss_idmap.x86_64                  1.12.4-47.el6                       base   
+libtasn1.x86_64                      2.3-6.el6_5                         base   
+libtiff.x86_64                       3.9.4-10.el6_5                      base   
+libtirpc.x86_64                      0.2.1-10.el6                        base   
+libudev.x86_64                       147-2.63.el6                        base   
+libuser.x86_64                       0.56.13-8.el6_7                     updates
+libuuid.x86_64                       2.17.2-12.18.el6                    base   
+libvisual.x86_64                     0.4.0-10.el6                        base   
+libxcb.x86_64                        1.9.1-3.el6                         base   
+logrotate.x86_64                     3.7.8-23.el6                        base   
+lsof.x86_64                          4.82-5.el6                          base   
+ltrace.x86_64                        0.5-28.45svn.el6                    base   
+lvm2.x86_64                          2.02.118-3.el6_7.2                  updates
+lvm2-libs.x86_64                     2.02.118-3.el6_7.2                  updates
+lzo.x86_64                           2.06-1.el6                          HDP-UTILS-1.1.0.17
+mailx.x86_64                         12.4-8.el6_6                        base   
+man-pages-overrides.noarch           6.7.5-1.el6                         base   
+mcelog.x86_64                        2:109-4.0fc9f70.el6                 base   
+mdadm.x86_64                         3.3.2-5.el6                         base   
+mesa-dri-drivers.x86_64              10.4.3-1.el6                        base   
+mesa-dri-filesystem.x86_64           10.4.3-1.el6                        base   
+mesa-libGL.x86_64                    10.4.3-1.el6                        base   
+mesa-libGLU.x86_64                   10.4.3-1.el6                        base   
+mesa-private-llvm.x86_64             3.4-3.el6                           base   
+microcode_ctl.x86_64                 1:1.17-20.el6                       base   
+mlocate.x86_64                       0.22.2-6.el6                        base   
+module-init-tools.x86_64             3.9-25.el6                          base   
+mysql-libs.x86_64                    5.1.73-5.el6_6                      base   
+ncurses.x86_64                       5.7-4.20090207.el6                  base   
+net-snmp.x86_64                      1:5.5-54.el6_7.1                    updates
+net-snmp-libs.x86_64                 1:5.5-54.el6_7.1                    updates
+net-snmp-utils.x86_64                1:5.5-54.el6_7.1                    updates
+nfs-utils.x86_64                     1:1.2.3-64.el6                      base   
+nfs-utils-lib.x86_64                 1.1.5-11.el6                        base   
+nfs4-acl-tools.x86_64                0.3.3-7.el6                         base   
+ntp.x86_64                           4.2.6p5-5.el6.centos                base   
+ntpdate.x86_64                       4.2.6p5-5.el6.centos                base   
+ntsysv.x86_64                        1.3.49.3-5.el6                      base   
+numactl.x86_64                       2.0.9-2.el6                         base   
+numad.x86_64                         0.5-12.20150602git.el6              base   
+openjpeg-libs.x86_64                 1.3-11.el6                          base   
+openldap.x86_64                      2.4.40-5.el6                        base   
+openpgm.x86_64                       5.2.122-2.el6                       epel   
+openssh.x86_64                       5.3p1-112.el6_7                     updates
+openssh-clients.x86_64               5.3p1-112.el6_7                     updates
+openssh-server.x86_64                5.3p1-112.el6_7                     updates
+openswan.x86_64                      2.6.32-37.el6                       base   
+oprofile.x86_64                      0.9.9-11.el6                        base   
+p11-kit.x86_64                       0.18.5-2.el6_5.2                    base   
+p11-kit-trust.x86_64                 0.18.5-2.el6_5.2                    base   
+pam_passwdqc.x86_64                  1.0.5-8.el6                         base   
+pango.x86_64                         1.28.1-10.el6                       base   
+parallel.noarch                      20170522-2.2                        home_tange
+parted.x86_64                        2.1-29.el6                          base   
+pciutils.x86_64                      3.1.10-4.el6                        base   
+pciutils-libs.x86_64                 3.1.10-4.el6                        base   
+perf.x86_64                          3.10.0-327.33.el7.wanda             wanda  
+perl.x86_64                          4:5.10.1-141.el6                    base   
+perl-Archive-Extract.x86_64          1:0.38-141.el6                      base   
+perl-Archive-Tar.x86_64              1.58-141.el6                        base   
+perl-CGI.x86_64                      3.51-141.el6                        base   
+perl-CPAN.x86_64                     1.9402-141.el6                      base   
+perl-CPANPLUS.x86_64                 0.88-141.el6                        base   
+perl-Compress-Raw-Bzip2.x86_64       2.021-141.el6                       base   
+perl-Compress-Raw-Zlib.x86_64        1:2.021-141.el6                     base   
+perl-Compress-Zlib.x86_64            2.021-141.el6                       base   
+perl-Crypt-SSLeay.x86_64             0.57-17.el6                         base   
+perl-Digest-SHA.x86_64               1:5.47-141.el6                      base   
+perl-ExtUtils-CBuilder.x86_64        1:0.27-141.el6                      base   
+perl-ExtUtils-Embed.x86_64           1.28-141.el6                        base   
+perl-ExtUtils-MakeMaker.x86_64       6.55-141.el6                        base   
+perl-ExtUtils-ParseXS.x86_64         1:2.2003.0-141.el6                  base   
+perl-File-Fetch.x86_64               0.26-141.el6                        base   
+perl-IO-Compress-Base.x86_64         2.021-141.el6                       base   
+perl-IO-Compress-Bzip2.x86_64        2.021-141.el6                       base   
+perl-IO-Compress-Zlib.x86_64         2.021-141.el6                       base   
+perl-IO-Zlib.x86_64                  1:1.09-141.el6                      base   
+perl-IPC-Cmd.x86_64                  1:0.56-141.el6                      base   
+perl-Locale-Maketext-Simple.x86_64   1:0.18-141.el6                      base   
+perl-Log-Message.x86_64              1:0.02-141.el6                      base   
+perl-Log-Message-Simple.x86_64       0.04-141.el6                        base   
+perl-Module-Build.x86_64             1:0.3500-141.el6                    base   
+perl-Module-CoreList.x86_64          2.18-141.el6                        base   
+perl-Module-Load.x86_64              1:0.16-141.el6                      base   
+perl-Module-Load-Conditional.x86_64  0.30-141.el6                        base   
+perl-Module-Loaded.x86_64            1:0.02-141.el6                      base   
+perl-Module-Pluggable.x86_64         1:3.90-141.el6                      base   
+perl-Object-Accessor.x86_64          1:0.34-141.el6                      base   
+perl-Package-Constants.x86_64        1:0.02-141.el6                      base   
+perl-Params-Check.x86_64             1:0.26-141.el6                      base   
+perl-Parse-CPAN-Meta.x86_64          1:1.40-141.el6                      base   
+perl-Pod-Escapes.x86_64              1:1.04-141.el6                      base   
+perl-Pod-Simple.x86_64               1:3.13-141.el6                      base   
+perl-Term-UI.x86_64                  0.20-141.el6                        base   
+perl-Test-Harness.x86_64             3.17-141.el6                        base   
+perl-Test-Simple.x86_64              0.92-141.el6                        base   
+perl-Time-HiRes.x86_64               4:1.9721-141.el6                    base   
+perl-Time-Piece.x86_64               1.15-141.el6                        base   
+perl-core.x86_64                     5.10.1-141.el6                      base   
+perl-devel.x86_64                    4:5.10.1-141.el6                    base   
+perl-libs.x86_64                     4:5.10.1-141.el6                    base   
+perl-parent.x86_64                   1:0.221-141.el6                     base   
+perl-version.x86_64                  3:0.77-141.el6                      base   
+phonon-backend-gstreamer.x86_64      1:4.6.2-28.el6_5                    base   
+pinentry.x86_64                      0.7.6-8.el6                         base   
+pixman.x86_64                        0.32.4-4.el6                        base   
+plymouth.x86_64                      0.8.3-27.el6.centos.1               base   
+plymouth-core-libs.x86_64            0.8.3-27.el6.centos.1               base   
+plymouth-scripts.x86_64              0.8.3-27.el6.centos.1               base   
+pm-utils.x86_64                      1.2.5-11.el6                        base   
+polkit.x86_64                        0.96-11.el6                         base   
+poppler.x86_64                       0.12.4-4.el6_6.1                    base   
+poppler-utils.x86_64                 0.12.4-4.el6_6.1                    base   
+postfix.x86_64                       2:2.6.6-6.el6_5                     base   
+procps.x86_64                        3.2.8-33.el6                        base   
+psmisc.x86_64                        22.6-19.el6_5                       base   
+pyOpenSSL.x86_64                     0.13.1-2.el6                        base   
+python-backports.x86_64              1.0-5.el6                           base   
+python-chardet.noarch                2.2.1-1.el6                         base   
+python-kerberos.x86_64               1.1-7.el6                           base   
+python-msgpack.x86_64                0.4.6-1.el6                         epel   
+python-nss.x86_64                    0.16.0-1.el6                        base   
+python-requests.noarch               2.6.0-3.el6                         base   
+python-six.noarch                    1.9.0-2.el6                         base   
+python-urllib3.noarch                1.10.2-1.el6                        base   
+qemu-guest-agent.x86_64              2:0.12.1.2-2.479.el6                base   
+ql2400-firmware.noarch               7.03.00-1.el6_5                     base   
+ql2500-firmware.noarch               7.03.00-1.el6_5                     base   
+qt.x86_64                            1:4.6.2-28.el6_5                    base   
+qt-sqlite.x86_64                     1:4.6.2-28.el6_5                    base   
+qt-x11.x86_64                        1:4.6.2-28.el6_5                    base   
+quota.x86_64                         1:3.17-23.el6                       base   
+rng-tools.x86_64                     5-1.el6                             base   
+rsyslog.x86_64                       5.8.10-10.el6_6                     base   
+salt.noarch                          2016.11.1-1.el6                     wanda  
+salt-minion.noarch                   2016.11.1-1.el6                     wanda  
+samba-client.x86_64                  3.6.23-20.el6                       base   
+samba-common.x86_64                  3.6.23-20.el6                       base   
+samba-winbind.x86_64                 3.6.23-20.el6                       base   
+samba-winbind-clients.x86_64         3.6.23-20.el6                       base   
+samba4-libs.x86_64                   4.0.0-66.el6_6.rc4                  base   
+selinux-policy.noarch                3.7.19-279.el6_7.5                  updates
+selinux-policy-targeted.noarch       3.7.19-279.el6_7.5                  updates
+sg3_utils-libs.x86_64                1.28-8.el6                          base   
+shadow-utils.x86_64                  2:4.1.4.2-19.el6_6.1                base   
+shared-mime-info.x86_64              0.70-6.el6                          base   
+sos.noarch                           3.2-28.el6.centos                   base   
+sssd.x86_64                          1.12.4-47.el6                       base   
+sssd-client.x86_64                   1.12.4-47.el6                       base   
+strace.x86_64                        4.8-10.el6                          base   
+sysstat.x86_64                       9.0.4-27.el6                        base   
+system-config-firewall-base.noarch   1.2.27-7.2.el6_6                    base   
+system-config-firewall-tui.noarch    1.2.27-7.2.el6_6                    base   
+systemtap-runtime.x86_64             2.7-2.el6                           base   
+sysvinit-tools.x86_64                2.87-6.dsf.el6                      base   
+tar.x86_64                           2:1.23-13.el6                       base   
+tcpdump.x86_64                       14:4.0.0-5.20090921gitdf3cb4.2.el6  base   
+tcsh.x86_64                          6.17-25.el6_6                       base   
+time.x86_64                          1.7-38.el6                          base   
+trace-cmd.x86_64                     1.0.5-11.el6                        base   
+tree.x86_64                          1.5.3-3.el6                         base   
+tzdata.noarch                        2015f-1.el6                         updates
+udev.x86_64                          147-2.63.el6                        base   
+unzip.x86_64                         6.0-2.el6_6                         base   
+upstart.x86_64                       0.6.5-13.el6_5.3                    base   
+util-linux-ng.x86_64                 2.17.2-12.18.el6                    base   
+valgrind.x86_64                      1:3.8.1-8.el6                       base   
+vim-minimal.x86_64                   2:7.4.629-5.el6                     base   
+wget.x86_64                          1.12-5.el6_6.1                      base   
+wireless-tools.x86_64                1:29-6.el6                          base   
+xml-common.noarch                    0.6.3-33.el6                        base   
+xorg-x11-drv-ati-firmware.noarch     7.5.99-3.el6                        base   
+xz.x86_64                            4.999.9-0.5.beta.20091007git.el6    base   
+xz-libs.x86_64                       4.999.9-0.5.beta.20091007git.el6    base   
+xz-lzma-compat.x86_64                4.999.9-0.5.beta.20091007git.el6    base   
+ypbind.x86_64                        3:1.20.4-31.el6                     base   
+yum.noarch                           3.2.29-69.el6.centos                base   
+yum-plugin-fastestmirror.noarch      1.1.30-30.el6                       base   
+yum-plugin-security.noarch           1.1.30-30.el6                       base   
+yum-utils.noarch                     1.1.30-30.el6                       base   
+zabbix-agent.x86_64                  3.0.4-1.el6                         epel   
+Obsoleting Packages
+Percona-Server-shared-51.x86_64      5.1.73-rel14.12.624.rhel6           percona-release-x86_64
+    mysql-libs.x86_64                5.1.71-1.el6                        @anaconda-CentOS-201311272149.x86_64/6.5
+kernel-tools.x86_64                  3.10.0-327.34.el7.wanda             wanda  
+    cpuspeed.x86_64                  1:1.5-20.el6_4                      @anaconda-CentOS-201311272149.x86_64/6.5
+sssd-common.x86_64                   1.12.4-47.el6                       base   
+    libsss_autofs.x86_64             1.9.2-129.el6                       @anaconda-CentOS-201311272149.x86_64/6.5
+`
+	splitRexp := regexp.MustCompile(`^\s*([\w\.\-]+)\s+([:\w\.\-]+)\s+(\S*)\s*$`)
+	lines := strings.Split(raw, "\n")
+	for k, line := range lines {
+		subs := splitRexp.FindAllStringSubmatch(line, 1)
+		if len(subs) > 0 {
+			var s1, s2, s3 string
+			if ParseYumText(subs[0][1]) == YUM_NAME {
+				s1 = "Y"
+			} else {
+				s1 = "N"
+			}
+			if ParseYumText(subs[0][2]) == YUM_VERSION {
+				s2 = "Y"
+			} else {
+				s2 = "N"
+			}
+			if ParseYumText(subs[0][3]) == YUM_UNKNOWN {
+				s3 = "Y"
+			} else {
+				s3 = "N"
+			}
+			if s1 == "Y" && s2 == "Y" && s3 == "Y" {
+				continue
+			}
+			t.Errorf(k, subs[0][1:],
+				",", s1,
+				",", s2,
+				",", s3)
+		} else {
+			fmt.Println(k, "NOT maatch")
+		}
+	}
+}
