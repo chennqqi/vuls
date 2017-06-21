@@ -23,7 +23,7 @@ func init() {
 	yumNameExp = regexp.MustCompile(`([\w\-]+)\.(i[3-6]86|noarch|x86|x86_64|athlon)$`)
 	yumVersionExp = regexp.MustCompile(`([:\w\.\-]+)\.(rh)?el[567][_\.\w]*`)
 	yumVersionExp2 = regexp.MustCompile(`[\d\-\.+:]`)
-	yumTextSplitExp = regexp.MustCompile(`^\s*([\w\.\-]+)\s+([:\w\.\-]+)\s+(\S*)\s*$`)
+	yumTextSplitExp = regexp.MustCompile(`^([\w\.\-]+)\s+([:\w\.\-]+)\s+(\S*)$`)
 }
 
 func parseYumText(txt string) YUM_INFO_TYPE {
@@ -56,6 +56,7 @@ func parseYumText(txt string) YUM_INFO_TYPE {
 	m1 := yumVersionExp.FindAllStringSubmatch(txt, 1)
 	if yumVersionExp.MatchString(txt) && len(m1) > 0 {
 		var score int
+		var numbercount int
 		for idx, c := range m1[0][1] {
 			if (c >= 'a' && c <= 'z') ||
 				(c >= 'A' && c <= 'Z') || c == '_' {
@@ -73,7 +74,7 @@ func parseYumText(txt string) YUM_INFO_TYPE {
 		if len(m1[0]) > 2 {
 			score++
 		}
-		if score > 0 {
+		if score > 0 && numbercount > 0 {
 			return YUM_VERSION
 		} else {
 			fmt.Println("TESTB", m1[0][1], "score:", score)
@@ -95,8 +96,10 @@ func preProcessText(line string) []yumvalue {
 	var r []yumvalue
 	m := yumTextSplitExp.FindAllStringSubmatch(line, 1)
 	if len(m) > 0 {
-
-		for _, s := range m[0] {
+		for k, s := range m[0] {
+			if k == 0 {
+				continue
+			}
 			r = append(r, yumvalue{
 				txt: s,
 				typ: parseYumText(s),
