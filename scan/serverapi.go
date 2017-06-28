@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scan
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -410,11 +411,31 @@ func Scan(timeoutSec int) error {
 	if err != nil {
 		return err
 	}
-	if err := scanVulns(dir, scannedAt, timeoutSec); err != nil {
+	if err := scanVulnsToDir(dir, scannedAt, timeoutSec); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// Scan scan
+func ScanEx(timeoutSec int) (models.ScanResults, error) {
+	if len(servers) == 0 {
+		return nil, errors.New("No server defined. Check the configuration")
+	}
+
+	if err := setupChangelogCache(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if cache.DB != nil {
+			cache.DB.Close()
+		}
+	}()
+
+	util.Log.Info("Scanning vulnerable OS packages...")
+	scannedAt := time.Now()
+	return scanVulns(scannedAt, timeoutSec), nil
 }
 
 func setupChangelogCache() error {
@@ -434,7 +455,7 @@ func setupChangelogCache() error {
 	return nil
 }
 
-func scanVulns(jsonDir string, scannedAt time.Time, timeoutSec int) error {
+func scanVulnsToDir(jsonDir string, scannedAt time.Time, timeoutSec int) error {
 	var results models.ScanResults
 	parallelExec(func(o osTypeInterface) error {
 		return o.scanPackages()
@@ -450,6 +471,7 @@ func scanVulns(jsonDir string, scannedAt time.Time, timeoutSec int) error {
 	ws := []report.ResultWriter{
 		report.LocalFileWriter{CurrentDir: jsonDir},
 	}
+
 	for _, w := range ws {
 		if err := w.Write(results...); err != nil {
 			return fmt.Errorf("Failed to write summary report: %s", err)
@@ -458,6 +480,21 @@ func scanVulns(jsonDir string, scannedAt time.Time, timeoutSec int) error {
 
 	report.StdoutWriter{}.WriteScanSummary(results...)
 	return nil
+}
+
+func scanVulns(scannedAt time.Time, timeoutSec int) models.ScanResults {
+	var results models.ScanResults
+	parallelExec(func(o osTypeInterface) error {
+		return o.scanPackages()
+	}, timeoutSec)
+
+	for _, s := range append(servers, errServers...) {
+		r := s.convertToModel()
+		r.ScannedAt = scannedAt
+		results = append(results, r)
+	}
+
+	return results
 }
 
 func ensureResultDir(scannedAt time.Time) (currentDir string, err error) {
